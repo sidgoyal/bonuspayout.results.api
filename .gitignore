@@ -1,0 +1,12 @@
+**/.settings/
+**/target/
+.*.swp
+**/.project
+**/.classpath
+.DS_Store
+/build/
+/.gradle/
+
+.factorypath
+.apt_generated
+.git
