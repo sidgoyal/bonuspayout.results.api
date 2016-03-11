@@ -1,21 +1,25 @@
 package com.sidgoyal.bonuspayout.results.api.model;
 
-import java.util.Set;
+import java.util.List;
+
+/*
+ * Wraps the list of InstanceIds for returning proper Json by jackson
+ */
 
 public class InstanceIdList {
-	Set<String> instanceIds;
+	List<Long> instanceIds;
 
-	public InstanceIdList(Set<String> jobInstances) {
+	public InstanceIdList(List<Long> jobInstances) {
 		this.instanceIds = jobInstances;
 	}
 	
 	public InstanceIdList(){}
 
-	public Set<String> getInstanceIds() {
+	public List<Long> getInstanceIds() {
 		return instanceIds;
 	}
 
-	public void setInstanceIds(Set<String> instanceIds) {
+	public void setInstanceIds(List<Long> instanceIds) {
 		this.instanceIds = instanceIds;
 	}
 

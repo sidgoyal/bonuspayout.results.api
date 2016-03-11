@@ -2,6 +2,9 @@ package com.sidgoyal.bonuspayout.results.api.model;
 
 import java.util.List;
 
+/*
+ * Wraps the list of AccountModels for returning proper Json by jackson
+ */
 public class AccountsList {
 	
 	private List<AccountModel> accounts ;

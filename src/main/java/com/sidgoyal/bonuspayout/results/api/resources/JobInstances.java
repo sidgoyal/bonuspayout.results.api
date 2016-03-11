@@ -48,16 +48,4 @@ public class JobInstances {
 		return fileHandler.getAccountsForInstance(instanceId);
 	}
 	
-	@GET
-	@Path("exception")
-	@Produces({MediaType.APPLICATION_JSON})
-	public String getException(){
-		
-		throwException();
-		return "Sent exception";
-	}
-	
-	private void throwException(){
-		throw new RuntimeException();
-	}
 }

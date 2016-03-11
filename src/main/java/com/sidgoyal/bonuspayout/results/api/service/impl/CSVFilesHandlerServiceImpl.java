@@ -6,22 +6,23 @@ import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Logger;
 
 import javax.ws.rs.NotFoundException;
 
+import jersey.repackaged.com.google.common.collect.Lists;
+
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
+import au.com.bytecode.opencsv.CSVReader;
+
 import com.sidgoyal.bonuspayout.results.api.model.AccountModel;
 import com.sidgoyal.bonuspayout.results.api.model.AccountsList;
 import com.sidgoyal.bonuspayout.results.api.model.InstanceIdList;
 import com.sidgoyal.bonuspayout.results.api.service.CSVFilesHandlerService;
-
-import au.com.bytecode.opencsv.CSVReader;
 
 @Service
 public class CSVFilesHandlerServiceImpl implements CSVFilesHandlerService {
@@ -32,24 +33,34 @@ public class CSVFilesHandlerServiceImpl implements CSVFilesHandlerService {
 
 	public CSVFilesHandlerServiceImpl() {
 		
+		//Set the logs directory either by:
+		// system property : server.output.dir (For WAS LibertyProfile, its wlp/usr/servers/{srever.name}/) 
+		// or environment variable " LOG_DIR
 		this.logsDir = System.getenv("LOG_DIR") == null ? System.getProperty("server.output.dir") + "logs"
 				: System.getenv("LOG_DIR");
 
 		logger.fine("LogsDir : " + logsDir);
 	}
 
-	@JsonCreator()
+	/*
+	 * (non-Javadoc)
+	 * @see com.sidgoyal.bonuspayout.results.api.service.CSVFilesHandlerService#getJobInstancesList()
+	 */
 	public InstanceIdList getJobInstancesList() {
-		Set<String> jobInstances = new HashSet<String>();
+		Set<Long> jobInstances = new TreeSet<Long>();
 
 		for (File file : getFiles(".csv")) {
 
 			logger.fine("Filename matched : " + file.getName());
-			jobInstances.add((getInstanceIdForFile(file)));
+			jobInstances.add(getInstanceIdForFile(file));
 		}
-		return new InstanceIdList(jobInstances);
+		return new InstanceIdList(Lists.newArrayList(jobInstances));
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.sidgoyal.bonuspayout.results.api.service.CSVFilesHandlerService#getAccountsForInstance(java.lang.String)
+	 */
 	public AccountsList getAccountsForInstance(String instanceId) throws IOException {
 
 		List<AccountModel> accountsList = new ArrayList<AccountModel>();
@@ -57,11 +68,13 @@ public class CSVFilesHandlerServiceImpl implements CSVFilesHandlerService {
 		File[] files =  getFiles("." + instanceId + ".csv");
 		
 		if(files.length > 1){
-			logger.severe(" More than one file found for instancerId " + instanceId );
-			throw new IllegalStateException();
+			String errorMessage = "More than one file found for instancerId " + instanceId;
+			logger.warning(errorMessage);
+			throw new IllegalStateException(errorMessage);
 		}
 		if(files.length == 0){
-			String errorMessage = " No files found for instanceId " + instanceId;
+			String errorMessage = "No files found for instanceId " + instanceId;
+			logger.warning(errorMessage);
 			throw new NotFoundException(errorMessage);
 		}
 		
@@ -75,16 +88,36 @@ public class CSVFilesHandlerServiceImpl implements CSVFilesHandlerService {
 		
 		// Read CSV line by line and use the string array
 		String[] nextLine;
-		while ((nextLine = reader.readNext()) != null) {
-			if (nextLine != null) {
-				accountsList.add(new AccountModel(nextLine[0], nextLine[1], nextLine[2]));
+		try{
+			while ((nextLine = reader.readNext()) != null) {
+				if (nextLine != null) {
+					accountsList.add(new AccountModel(nextLine[0], nextLine[1], nextLine[2]));
+				}
+			}
+		}
+		catch(IOException e){
+			//We'll let the jersey/the container to deal with this. 
+			//Don't want to swallow the exception
+			throw e;
+		}
+		finally{
+			//Close the reader first
+			try{
+				reader.close();
+			}
+			catch(Exception e){
+				//DO Nothing
 			}
 		}
 		
 		logger.fine("Returning accoutns : " + accountsList) ;
 		return new AccountsList(accountsList);
 	}
-
+	
+	/*
+	 * @param the pattern used to search the directories
+	 * @returns list of files that ends with the supplied pattern
+	 */
 	private File[] getFiles(final String pattern) {
 		File dir = new File(logsDir);
 		File[] files = dir.listFiles(new FilenameFilter() {
@@ -99,7 +132,15 @@ public class CSVFilesHandlerServiceImpl implements CSVFilesHandlerService {
 		return files;
 	}
 
-	private String getInstanceIdForFile(File file) {
-		return file.getName().split("\\.")[1];
+	/*
+	 * returns instance id for the provided file.
+	 * 
+	 * Ex: for file name ****.1.csv, returns 1
+	 * 
+	 * @param file instance
+	 * @returns instanceId 
+	 */
+	private long getInstanceIdForFile(File file) {
+		return Long.parseLong(file.getName().split("\\.")[1]);
 	}
 }
