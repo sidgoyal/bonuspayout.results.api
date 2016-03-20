@@ -1,9 +1,13 @@
-from websphere-liberty:webProfile7
+from websphere-liberty:kernel
 
-RUN mkdir -p /opt/ibm/wlp/usr/servers/bonuspayout.results.api/dropins
+RUN /opt/ibm/wlp/bin/server create bonuspayout.results.api 
 
 ADD server.xml /opt/ibm/wlp/usr/servers/bonuspayout.results.api
 
+RUN /opt/ibm/wlp/bin/installUtility install --acceptLicense --to=usr bonuspayout.results.api
+
 COPY BonusPayoutResultsApiService.war /opt/ibm/wlp/usr/servers/bonuspayout.results.api/dropins
 
-CMD ["/opt/ibm/wlp/bin/server", run, "bonuspayout.results.api"]
+ENV LOG_DIR=/logs
+
+CMD ["/opt/ibm/wlp/bin/server", "run", "bonuspayout.results.api"]
