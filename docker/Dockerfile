@@ -8,6 +8,6 @@ RUN /opt/ibm/wlp/bin/installUtility install --acceptLicense --to=usr bonuspayout
 
 COPY BonusPayoutResultsApiService.war /opt/ibm/wlp/usr/servers/bonuspayout.results.api/dropins
 
-ENV LOG_DIR=/logs
+ENV WLP_OUTPUT_DIR=/opt/ibm/wlp/usr/servers/ CSV_DIR=/csv
 
 CMD ["/opt/ibm/wlp/bin/server", "run", "bonuspayout.results.api"]
