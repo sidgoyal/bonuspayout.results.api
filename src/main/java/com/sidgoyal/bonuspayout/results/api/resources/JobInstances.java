@@ -12,6 +12,8 @@ import javax.ws.rs.core.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sidgoyal.bonuspayout.results.api.model.AccountsList;
 import com.sidgoyal.bonuspayout.results.api.model.InstanceIdList;
 import com.sidgoyal.bonuspayout.results.api.service.CSVFilesHandlerService;
@@ -19,6 +21,13 @@ import com.sidgoyal.bonuspayout.results.api.service.CSVFilesHandlerService;
 @Component
 @Path("/results/jobinstances")
 public class JobInstances {
+	
+	private ObjectMapper mapper = new ObjectMapper();
+	
+	public JobInstances(){
+		
+		System.out.println("[DEBUG] inside jobinstances");
+	}
 	
 	@Autowired
 	public JobInstances(CSVFilesHandlerService fileHandler){
@@ -31,21 +40,23 @@ public class JobInstances {
 
 	@GET
 	@Produces({MediaType.APPLICATION_JSON})
-	public InstanceIdList getJobInstances(){
+	public String getJobInstances() throws JsonProcessingException{
 		
 		logger.fine("Getting jobInstances");
 		
-		return fileHandler.getJobInstancesList();
+		return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(fileHandler.getJobInstancesList());
 	}
 	
 	@GET
 	@Path("{instanceId}")
 	@Produces({MediaType.APPLICATION_JSON})
-	public AccountsList getAccounts(@PathParam("instanceId") String instanceId) throws IOException{
+	public String getAccounts(@PathParam("instanceId") String instanceId) throws IOException{
 	
 		logger.fine("Getting accounts for jobInstance :" + instanceId);
 		
-		return fileHandler.getAccountsForInstance(instanceId);
+		AccountsList list =  fileHandler.getAccountsForInstance(instanceId);
+		
+		return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(list);
 	}
 	
 }
