@@ -36,8 +36,8 @@ public class CSVFilesHandlerServiceImpl implements CSVFilesHandlerService {
 		//Set the logs directory either by:
 		// system property : server.output.dir (For WAS LibertyProfile, its wlp/usr/servers/{srever.name}/) 
 		// or environment variable " LOG_DIR
-		this.logsDir = System.getenv("LOG_DIR") == null ? System.getProperty("server.output.dir") + "logs"
-				: System.getenv("LOG_DIR");
+		this.logsDir = System.getenv("CSV_DIR") == null ? System.getProperty("server.output.dir") + "logs"
+				: System.getenv("CSV_DIR");
 
 		logger.fine("LogsDir : " + logsDir);
 	}

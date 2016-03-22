@@ -9,5 +9,8 @@
 
     <httpEndpoint host="*" httpPort="9080" httpsPort="9443" id="defaultHttpEndpoint"/>
 
+    <logging traceSpecification="com.sidgoyal.bonuspayout.results.api.*=all=enabled"/>
+
+
     <keyStore id="defaultKeyStore" password="{xor}EzY9Oi0rJg=="></keyStore>
 </server>
