@@ -13,16 +13,14 @@ import java.util.logging.Logger;
 
 import javax.ws.rs.NotFoundException;
 
-import jersey.repackaged.com.google.common.collect.Lists;
-
 import org.springframework.stereotype.Service;
-
-import au.com.bytecode.opencsv.CSVReader;
 
 import com.sidgoyal.bonuspayout.results.api.model.AccountModel;
 import com.sidgoyal.bonuspayout.results.api.model.AccountsList;
-import com.sidgoyal.bonuspayout.results.api.model.InstanceIdList;
 import com.sidgoyal.bonuspayout.results.api.service.CSVFilesHandlerService;
+
+import au.com.bytecode.opencsv.CSVReader;
+import jersey.repackaged.com.google.common.collect.Lists;
 
 @Service
 public class CSVFilesHandlerServiceImpl implements CSVFilesHandlerService {
@@ -46,7 +44,7 @@ public class CSVFilesHandlerServiceImpl implements CSVFilesHandlerService {
 	 * (non-Javadoc)
 	 * @see com.sidgoyal.bonuspayout.results.api.service.CSVFilesHandlerService#getJobInstancesList()
 	 */
-	public InstanceIdList getJobInstancesList() {
+	public List<Long> getJobInstancesList() {
 		Set<Long> jobInstances = new TreeSet<Long>();
 
 		for (File file : getFiles(".csv")) {
@@ -54,7 +52,7 @@ public class CSVFilesHandlerServiceImpl implements CSVFilesHandlerService {
 			logger.fine("Filename matched : " + file.getName());
 			jobInstances.add(getInstanceIdForFile(file));
 		}
-		return new InstanceIdList(Lists.newArrayList(jobInstances));
+		return (Lists.newArrayList(jobInstances));
 	}
 
 	/*

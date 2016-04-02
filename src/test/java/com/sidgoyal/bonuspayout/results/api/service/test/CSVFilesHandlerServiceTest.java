@@ -28,7 +28,7 @@ public class CSVFilesHandlerServiceTest {
 	@Test
 	public void getJobInstancesTest() throws Exception{
 		
-		List<Long> instanceIds = csvService.getJobInstancesList().getInstanceIds();
+		List<Long> instanceIds = csvService.getJobInstancesList();
 		
 		assertEquals(2, instanceIds.size());
 	}

@@ -14,19 +14,23 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.sidgoyal.bonuspayout.results.api.model.AccountsList;
-import com.sidgoyal.bonuspayout.results.api.model.InstanceIdList;
 import com.sidgoyal.bonuspayout.results.api.service.CSVFilesHandlerService;
 
 @Component
 @Path("/results/jobinstances")
 public class JobInstances {
 	
-	private ObjectMapper mapper = new ObjectMapper();
 	
-	public JobInstances(){
+	private ObjectWriter prettyWriter; 
+	
+	private ObjectWriter getPrettyWriter(){
+		if(prettyWriter == null){
+			prettyWriter = new ObjectMapper().writerWithDefaultPrettyPrinter();
+		}
 		
-		System.out.println("[DEBUG] inside jobinstances");
+		return prettyWriter;
 	}
 	
 	@Autowired
@@ -44,7 +48,7 @@ public class JobInstances {
 		
 		logger.fine("Getting jobInstances");
 		
-		return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(fileHandler.getJobInstancesList());
+		return getPrettyWriter().withRootName("instanceIds").writeValueAsString(fileHandler.getJobInstancesList());
 	}
 	
 	@GET
@@ -56,7 +60,7 @@ public class JobInstances {
 		
 		AccountsList list =  fileHandler.getAccountsForInstance(instanceId);
 		
-		return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(list);
+		return getPrettyWriter().writeValueAsString(list);
 	}
 	
 }
